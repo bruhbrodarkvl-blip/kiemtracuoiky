@@ -267,7 +267,7 @@ def add_interaction():
     itype = request.form.get('type', 'CALL')
     summary = request.form.get('summary', '').strip()
     outcome = request.form.get('outcome', 'PENDING')
-    agent_name = request.form.get('agent_name', 'Phan Ngọc Ánh').strip()
+    agent_name = request.form.get('agent_name', 'Phàn Ngọc Anh').strip()
 
     with get_db_cursor(commit=True) as cur:
         cur.execute("""

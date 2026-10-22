@@ -1,6 +1,6 @@
 -- Database & Schema Initialization for CRM System
 -- Đề 4: Hệ thống CRM Chăm sóc Khách hàng
--- Sinh viên: Phan Ngọc Ánh - DTC245200964 - ICTU
+-- Sinh viên: Phàn Ngọc Anh - DTC245200964 - ICTU
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS interactions (
     type VARCHAR(50) NOT NULL, -- CALL, MEETING, EMAIL, DEMO, QUOTE, SUPPORT
     summary TEXT NOT NULL,
     outcome VARCHAR(50) DEFAULT 'PENDING', -- POSITIVE, PENDING, NEGATIVE
-    agent_name VARCHAR(100) DEFAULT 'Phan Ngọc Ánh',
+    agent_name VARCHAR(100) DEFAULT 'Phàn Ngọc Anh',
     interaction_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -78,14 +78,14 @@ INSERT INTO contacts (customer_id, full_name, position, email, phone, notes) VAL
 
 -- Seed Data: Interactions
 INSERT INTO interactions (customer_id, type, summary, outcome, agent_name, interaction_date) VALUES
-(1, 'MEETING', 'Họp trao đổi kỹ thuật về triển khai module CRM Chăm sóc Khách hàng trên nền tảng Docker Compose. Khách hàng đánh giá cao kiến trúc phân tầng an toàn.', 'POSITIVE', 'Phan Ngọc Ánh', NOW() - INTERVAL '5 days'),
-(1, 'QUOTE', 'Gửi bảng báo giá chi tiết gói phần mềm CRM Quản lý tương tác và dịch vụ hỗ trợ SLA 24/7.', 'POSITIVE', 'Phan Ngọc Ánh', NOW() - INTERVAL '3 days'),
-(2, 'DEMO', 'Buổi Demo giải pháp giám sát Prometheus + Grafana kết hợp lưu trữ log tập trung Loki cho khối viễn thông.', 'POSITIVE', 'Phan Ngọc Ánh', NOW() - INTERVAL '4 days'),
+(1, 'MEETING', 'Họp trao đổi kỹ thuật về triển khai module CRM Chăm sóc Khách hàng trên nền tảng Docker Compose. Khách hàng đánh giá cao kiến trúc phân tầng an toàn.', 'POSITIVE', 'Phàn Ngọc Anh', NOW() - INTERVAL '5 days'),
+(1, 'QUOTE', 'Gửi bảng báo giá chi tiết gói phần mềm CRM Quản lý tương tác và dịch vụ hỗ trợ SLA 24/7.', 'POSITIVE', 'Phàn Ngọc Anh', NOW() - INTERVAL '3 days'),
+(2, 'DEMO', 'Buổi Demo giải pháp giám sát Prometheus + Grafana kết hợp lưu trữ log tập trung Loki cho khối viễn thông.', 'POSITIVE', 'Phàn Ngọc Anh', NOW() - INTERVAL '4 days'),
 (2, 'CALL', 'Gọi điện thoại cập nhật tiến độ phê duyệt hồ sơ thầu dự án CRM nội bộ Viettel Solution.', 'PENDING', 'Nguyễn Văn A', NOW() - INTERVAL '2 days'),
-(3, 'MEETING', 'Làm việc với đội ngũ An toàn thông tin Vietcombank về chính sách Nginx SSL, security headers và cô lập mạng backend PostgreSQL.', 'POSITIVE', 'Phan Ngọc Ánh', NOW() - INTERVAL '6 days'),
+(3, 'MEETING', 'Làm việc với đội ngũ An toàn thông tin Vietcombank về chính sách Nginx SSL, security headers và cô lập mạng backend PostgreSQL.', 'POSITIVE', 'Phàn Ngọc Anh', NOW() - INTERVAL '6 days'),
 (4, 'CALL', 'Khảo sát nhu cầu mở rộng quy mô quản lý tương tác với hơn 100 đối tác phân phối Masan.', 'POSITIVE', 'Lê Thị B', NOW() - INTERVAL '1 day'),
-(5, 'EMAIL', 'Gửi tài liệu kiến trúc kỹ thuật và hướng dẫn sử dụng giao diện quản lý khách hàng cho VNPT.', 'PENDING', 'Phan Ngọc Ánh', NOW() - INTERVAL '8 hours'),
-(6, 'MEETING', 'Gặp mặt thảo luận về nhu cầu quản lý danh bạ nhà đầu tư VIP và lịch sử chăm sóc tài khoản SSI.', 'PENDING', 'Phan Ngọc Ánh', NOW() - INTERVAL '12 hours'),
+(5, 'EMAIL', 'Gửi tài liệu kiến trúc kỹ thuật và hướng dẫn sử dụng giao diện quản lý khách hàng cho VNPT.', 'PENDING', 'Phàn Ngọc Anh', NOW() - INTERVAL '8 hours'),
+(6, 'MEETING', 'Gặp mặt thảo luận về nhu cầu quản lý danh bạ nhà đầu tư VIP và lịch sử chăm sóc tài khoản SSI.', 'PENDING', 'Phàn Ngọc Anh', NOW() - INTERVAL '12 hours'),
 (7, 'CALL', 'Trao đổi qua điện thoại về tích hợp API dữ liệu giữa CRM và phần mềm kế toán.', 'PENDING', 'Nguyễn Văn A', NOW() - INTERVAL '1 day'),
-(11, 'CALL', 'Liên hệ làm quen và giới thiệu giải pháp CRM cho doanh nghiệp phần mềm tại Thái Nguyên.', 'POSITIVE', 'Phan Ngọc Ánh', NOW() - INTERVAL '2 days'),
-(12, 'EMAIL', 'Gửi thư mời tham gia hội thảo chuyển đổi số và demo ứng dụng CRM nguồn mở trên hạ tầng đám mây.', 'PENDING', 'Phan Ngọc Ánh', NOW() - INTERVAL '3 hours');
+(11, 'CALL', 'Liên hệ làm quen và giới thiệu giải pháp CRM cho doanh nghiệp phần mềm tại Thái Nguyên.', 'POSITIVE', 'Phàn Ngọc Anh', NOW() - INTERVAL '2 days'),
+(12, 'EMAIL', 'Gửi thư mời tham gia hội thảo chuyển đổi số và demo ứng dụng CRM nguồn mở trên hạ tầng đám mây.', 'PENDING', 'Phàn Ngọc Anh', NOW() - INTERVAL '3 hours');
