@@ -14,11 +14,14 @@ Dự án triển khai hoàn chỉnh một hệ thống phần mềm **CRM Chăm 
 
 ---
 
-## 2. Kiến trúc Hệ thống (Giai đoạn 1 - Core Services)
-* **Web App CRM**: Python Flask + Gunicorn, chuẩn MVC, tích hợp Chart.js, xuất metrics Prometheus `/metrics`.
-* **Database**: PostgreSQL 16 (tách biệt mạng nội bộ, tự động khởi tạo bảng và dữ liệu mẫu tiếng Việt).
-* **Quản trị Database**: pgAdmin 4 (cấu hình sẵn kết nối tự động vào PostgreSQL).
-* **Nginx Reverse Proxy**: Chuyển hướng HTTP sang HTTPS, chứng chỉ SSL tự ký, áp dụng 6 lớp Security Headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options...).
+## 2. Kiến trúc Hệ thống Giám sát (Monitoring Architecture)
+Hệ thống sử dụng mô hình giám sát toàn diện với **Prometheus** làm trung tâm thu thập dữ liệu time-series và **Grafana** trực quan hóa bảng điều khiển:
+1. **Ứng dụng CRM Web App** (`crm-app:5000/metrics`): Đo đếm tổng số HTTP requests, độ trễ xử lý (latency), tổng khách hàng theo phân hạng, lượt tương tác và doanh thu dự kiến.
+2. **PostgreSQL Exporter** (`postgres-exporter:9187`): Thu thập chỉ số cơ sở dữ liệu (Active connections, transactions commit/rollback, cache hit ratio, locks).
+3. **Nginx Exporter** (`nginx-exporter:9113`): Thu thập số lượng kết nối đang mở, throughput request/giây từ `/stub_status`.
+4. **cAdvisor** (`cadvisor:8080`): Giám sát mức tiêu thụ tài nguyên thời gian thực (CPU, RAM, Network I/O) của từng container Docker.
+5. **Node Exporter** (`node-exporter:9100`): Giám sát chỉ số phần cứng của máy chủ Linux (CPU load, RAM free, Disk usage).
+6. **Grafana** (`Port 3000` / `/grafana/`): Tự động nạp sẵn Dashboard `CRM System Overview & Monitoring Dashboard`.
 
 ---
 
@@ -38,21 +41,19 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -addext "subjectAltName=DNS:localhost,DNS:crm.local,IP:192.168.102.129,IP:127.0.0.1"
 ```
 
-### Bước 3: Khởi chạy bằng Docker Compose
+### Bước 3: Khởi chạy toàn bộ hệ thống
 ```bash
 docker compose up -d --build
 ```
 
 ---
 
-## 4. Truy cập Dịch vụ
-| Dịch vụ | Địa chỉ truy cập | Tài khoản mặc định | Ghi chú |
+## 4. Danh mục Dịch vụ và Cổng truy cập
+| Dịch vụ | Địa chỉ truy cập | Tài khoản mặc định | Vai trò |
 | :--- | :--- | :--- | :--- |
-| **CRM Web App** | `https://192.168.102.129` | Không yêu cầu đăng nhập | Giao diện Dashboard & CRUD |
-| **pgAdmin 4** | `https://192.168.102.129/pgadmin/` | `admin@crm.local` / `PgAdminStrongPass_2026!` | Quản lý PostgreSQL trực quan |
+| **CRM Web App** | `https://192.168.102.129` | Không yêu cầu đăng nhập | Giao diện CRM Quản lý Khách hàng |
+| **pgAdmin 4** | `https://192.168.102.129/pgadmin/` | `dtc245200964@ictu.edu.vn` / `PgAdminStrongPass_2026!` | Quản trị PostgreSQL trực quan |
+| **Grafana** | `https://192.168.102.129/grafana/` | `admin` / `GrafanaAdmin_2026!` | Bảng điều khiển Giám sát Đồ họa |
+| **Prometheus** | `http://192.168.102.129:9090` | Không yêu cầu | Thu thập và truy vấn Metrics |
+| **App Metrics** | `https://192.168.102.129/metrics` | — | Prometheus App Metrics |
 | **App Health** | `https://192.168.102.129/health` | — | Kiểm tra tình trạng kết nối DB |
-| **App Metrics** | `https://192.168.102.129/metrics` | — | Dữ liệu định dạng Prometheus |
-
----
-
-*Lưu ý: Do sử dụng chứng chỉ SSL tự ký (self-signed certificate) trong môi trường Lab, trình duyệt sẽ hiển thị cảnh báo bảo mật. Vui lòng bấm chọn **Advanced (Nâng cao) -> Proceed (Tiếp tục truy cập)** để vào hệ thống.*

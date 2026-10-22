@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 1. Cơ sở dữ liệu PostgreSQL
   crm-db:
@@ -27,7 +25,7 @@ services:
     container_name: crm-pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@crm.local}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-dtc245200964@ictu.edu.vn}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-PgAdminStrongPass_2026!}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
@@ -40,7 +38,7 @@ services:
       crm-db:
         condition: service_healthy
 
-  # 3. Ứng dụng Web CRM (Quản lý khách hàng, liên hệ, lịch sử tương tác)
+  # 3. Ứng dụng Web CRM
   crm-app:
     build:
       context: ./crm-app
@@ -57,6 +55,7 @@ services:
     networks:
       - crm-frontend-net
       - crm-backend-net
+      - crm-monitor-net
     depends_on:
       crm-db:
         condition: service_healthy
@@ -75,16 +74,122 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
       - crm-frontend-net
+      - crm-monitor-net
     depends_on:
       - crm-app
       - pgadmin
+
+  # 5. Prometheus - Thu thập chỉ số giám sát
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: crm-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    networks:
+      - crm-monitor-net
+    depends_on:
+      - crm-app
+
+  # 6. Grafana - Hiển thị Bảng điều khiển Giám sát
+  grafana:
+    image: grafana/grafana:latest
+    container_name: crm-grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=GrafanaAdmin_2026!
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://192.168.102.129/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    networks:
+      - crm-frontend-net
+      - crm-monitor-net
+    depends_on:
+      - prometheus
+
+  # 7. Postgres Exporter - Giám sát hiệu năng Database
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: crm-postgres-exporter
+    restart: always
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER:-crm_user}:${POSTGRES_PASSWORD:-CrmSecurePass_2026!}@crm-db:5432/${POSTGRES_DB:-crm_db}?sslmode=disable"
+    networks:
+      - crm-backend-net
+      - crm-monitor-net
+    depends_on:
+      crm-db:
+        condition: service_healthy
+
+  # 8. Nginx Prometheus Exporter - Giám sát Web Server
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: crm-nginx-exporter
+    restart: always
+    command:
+      - -nginx.scrape-uri=http://crm-nginx:80/stub_status
+    networks:
+      - crm-frontend-net
+      - crm-monitor-net
+    depends_on:
+      - crm-nginx
+
+  # 9. cAdvisor - Giám sát tài nguyên Container (CPU, Memory, IO)
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: crm-cadvisor
+    restart: always
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - crm-monitor-net
+
+  # 10. Node Exporter - Giám sát tài nguyên máy chủ Host
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: crm-node-exporter
+    restart: always
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+    networks:
+      - crm-monitor-net
 
 networks:
   crm-frontend-net:
     driver: bridge
   crm-backend-net:
     driver: bridge
+  crm-monitor-net:
+    driver: bridge
 
 volumes:
   postgres_data:
   pgadmin_data:
+  prometheus_data:
+  grafana_data:
