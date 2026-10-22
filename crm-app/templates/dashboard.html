@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Bảng điều khiển Tổng quan - CRM{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-gauge-high text-primary me-2"></i>Tổng quan Hệ thống CRM</h2>
+        <p class="text-muted">Theo dõi chỉ số khách hàng, tương tác và tiến độ kinh doanh trong thời gian thực.</p>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-white-50 fw-semibold">Tổng khách hàng</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ total_customers }}</h2>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-building fa-2x opacity-75"></i></div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0 text-white-50 small">
+                <i class="fa-solid fa-arrow-up me-1"></i> Quản lý trong cơ sở dữ liệu
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm bg-warning text-dark h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-black-50 fw-semibold">Khách hàng VIP</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ vip_customers }}</h2>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-crown fa-2x opacity-75"></i></div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0 text-black-50 small">
+                <i class="fa-solid fa-star me-1"></i> Phân khúc chiến lược
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm bg-info text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-white-50 fw-semibold">Lịch sử tương tác</h6>
+                    <h2 class="display-6 fw-bold mb-0">{{ total_interactions }}</h2>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-headset fa-2x opacity-75"></i></div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0 text-white-50 small">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i> Cuộc gọi, họp, email, demo
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card stat-card border-0 shadow-sm bg-success text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-white-50 fw-semibold">Doanh thu dự kiến</h6>
+                    <h3 class="fw-bold mb-0">{{ "{:,.0f}".format(total_revenue) }} <small class="fs-6">VNĐ</small></h3>
+                </div>
+                <div class="stat-icon"><i class="fa-solid fa-sack-dollar fa-2x opacity-75"></i></div>
+            </div>
+            <div class="card-footer bg-transparent border-0 pt-0 text-white-50 small">
+                <i class="fa-solid fa-chart-pie me-1"></i> Dự toán hợp đồng tiềm năng
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Phân bổ Khách hàng theo Trạng thái</h5>
+                <span class="badge bg-light text-muted border">PostgreSQL</span>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height: 300px;">
+                <canvas id="customerStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0"><i class="fa-solid fa-chart-column text-success me-2"></i>Tương tác theo Hình thức Chăm sóc</h5>
+                <span class="badge bg-light text-muted border">Live Logs</span>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="position: relative; height: 300px;">
+                <canvas id="interactionTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Interactions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-info me-2"></i>Hoạt động Chăm sóc Khách hàng Gần nhất</h5>
+                <a href="{{ url_for('interactions') }}" class="btn btn-sm btn-outline-primary">Xem tất cả <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Khách hàng</th>
+                            <th>Kênh tương tác</th>
+                            <th>Nội dung trao đổi</th>
+                            <th>Kết quả</th>
+                            <th>Nhân viên thực hiện</th>
+                            <th>Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inter in recent_interactions %}
+                        <tr>
+                            <td class="fw-semibold text-primary">{{ inter[1] }}</td>
+                            <td>
+                                {% if inter[2] == 'CALL' %}<span class="badge bg-info-subtle text-info border border-info"><i class="fa-solid fa-phone me-1"></i>Cuộc gọi</span>
+                                {% elif inter[2] == 'MEETING' %}<span class="badge bg-primary-subtle text-primary border border-primary"><i class="fa-solid fa-handshake me-1"></i>Gặp mặt</span>
+                                {% elif inter[2] == 'EMAIL' %}<span class="badge bg-secondary-subtle text-secondary border"><i class="fa-solid fa-envelope me-1"></i>Email</span>
+                                {% elif inter[2] == 'DEMO' %}<span class="badge bg-warning-subtle text-warning border border-warning"><i class="fa-solid fa-laptop-code me-1"></i>Demo</span>
+                                {% else %}<span class="badge bg-dark-subtle text-dark border">{{ inter[2] }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-truncate" style="max-width: 320px;">{{ inter[3] }}</td>
+                            <td>
+                                {% if inter[4] == 'POSITIVE' %}<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Thành công</span>
+                                {% elif inter[4] == 'PENDING' %}<span class="badge bg-warning text-dark"><i class="fa-solid fa-spinner me-1"></i>Đang xử lý</span>
+                                {% else %}<span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i>Từ chối</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-light text-dark border"><i class="fa-solid fa-user me-1"></i>{{ inter[5] }}</span></td>
+                            <td class="text-muted small">{{ inter[6].strftime('%d/%m/%Y %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Status Data
+    const statusLabels = {{ status_data.keys()|list|tojson }};
+    const statusCounts = {{ status_data.values()|list|tojson }};
+
+    const statusCtx = document.getElementById('customerStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusCounts,
+                backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#0dcaf0', '#6c757d'],
+                borderWidth: 2,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Type Data
+    const typeLabels = {{ type_data.keys()|list|tojson }};
+    const typeCounts = {{ type_data.values()|list|tojson }};
+
+    const typeCtx = document.getElementById('interactionTypeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'bar',
+        data: {
+            labels: typeLabels,
+            datasets: [{
+                label: 'Số lượt thực hiện',
+                data: typeCounts,
+                backgroundColor: '#198754',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

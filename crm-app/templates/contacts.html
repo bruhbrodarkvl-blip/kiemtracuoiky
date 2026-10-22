@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Quản lý Người liên hệ - CRM{% endblock %}
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-dark mb-1"><i class="fa-solid fa-address-book text-primary me-2"></i>Quản lý Người Liên hệ</h2>
+        <p class="text-muted mb-0">Danh bạ nhân sự chủ chốt, chức vụ và kênh liên lạc trực tiếp tại các đối tác.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <button class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addContactModal">
+            <i class="fa-solid fa-user-plus me-1"></i> Thêm Người liên hệ
+        </button>
+    </div>
+</div>
+
+<!-- Filter by Customer -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('contacts') }}" class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <select name="customer_id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả Doanh nghiệp / Khách hàng --</option>
+                    {% for cust in customers %}
+                        <option value="{{ cust[0] }}" {% if selected_customer_id == cust[0] %}selected{% endif %}>{{ cust[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('contacts') }}" class="btn btn-outline-secondary w-100"><i class="fa-solid fa-rotate-left me-1"></i> Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã</th>
+                    <th>Họ và Tên</th>
+                    <th>Chức vụ / Phòng ban</th>
+                    <th>Doanh nghiệp trực thuộc</th>
+                    <th>Email liên hệ</th>
+                    <th>Điện thoại</th>
+                    <th>Ghi chú</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ct in contacts %}
+                <tr>
+                    <td class="text-muted">#{{ ct[0] }}</td>
+                    <td class="fw-bold text-dark"><i class="fa-solid fa-user me-2 text-primary"></i>{{ ct[1] }}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary border">{{ ct[2] or 'Chuyên viên' }}</span></td>
+                    <td class="fw-semibold text-primary"><a href="{{ url_for('customers', search=ct[6]) }}" class="text-decoration-none">{{ ct[6] }}</a></td>
+                    <td><a href="mailto:{{ ct[3] }}" class="text-decoration-none">{{ ct[3] }}</a></td>
+                    <td>{{ ct[4] }}</td>
+                    <td class="small text-muted">{{ ct[5] or '—' }}</td>
+                    <td class="text-center">
+                        <form method="POST" action="{{ url_for('delete_contact', contact_id=ct[0]) }}" onsubmit="return confirm('Bạn có chắc muốn xóa người liên hệ này?');" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        <i class="fa-solid fa-user-slash fa-2x mb-2 d-block"></i>
+                        Không có người liên hệ nào.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Contact Modal -->
+<div class="modal fade" id="addContactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('add_contact') }}">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-plus me-2"></i>Thêm Người Liên hệ Mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Thuộc Khách hàng / Doanh nghiệp *</label>
+                        <select name="customer_id" class="form-select" required>
+                            <option value="">-- Chọn khách hàng --</option>
+                            {% for cust in customers %}
+                                <option value="{{ cust[0] }}">{{ cust[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Họ và tên *</label>
+                        <input type="text" name="full_name" class="form-control" placeholder="VD: Nguyễn Văn Tuấn" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Chức danh / Vị trí</label>
+                        <input type="text" name="position" class="form-control" placeholder="VD: Giám đốc Khối CNTT">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email *</label>
+                        <input type="email" name="email" class="form-control" placeholder="tuan.nguyen@company.vn" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Số điện thoại *</label>
+                        <input type="text" name="phone" class="form-control" placeholder="0912 345 678" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Ghi chú</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Sở thích, thời gian thích hợp liên hệ..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i> Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

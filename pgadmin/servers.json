@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CRM PostgreSQL Database (Docker)",
+      "Group": "Servers",
+      "Host": "crm-db",
+      "Port": 5432,
+      "MaintenanceDB": "crm_db",
+      "Username": "crm_user",
+      "SSLMode": "prefer"
+    }
+  }
+}
