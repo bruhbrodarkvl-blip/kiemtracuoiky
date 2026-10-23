@@ -5,7 +5,7 @@
 * **Giảng viên hướng dẫn**: Vũ Việt Dũng
 * **Sinh viên thực hiện**: Phàn Ngọc Anh
 * **Mã sinh viên**: DTC245200964
-* **Lớp**: CNTT K24
+* **Lớp**: CNTT K23
 * **Email**: dtc245200964@ictu.edu.vn
 * **Repository**: https://github.com/bruhbrodarkvl-blip/kiemtracuoiky
 * **Địa chỉ máy chủ Lab**: `ssh ubuntu@192.168.102.129` (mật khẩu: `ubuntu`)
