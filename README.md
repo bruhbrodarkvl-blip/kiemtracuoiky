@@ -12,7 +12,7 @@
 
 ---
 
-## 1. Giới thiệu Đề tài
+#1. Giới thiệu Đề tài
 Dự án triển khai một hệ thống phần mềm **CRM Chăm sóc Khách hàng** toàn diện, đáp ứng đầy đủ yêu cầu quản lý khách hàng doanh nghiệp, người liên hệ phụ trách và lịch sử tương tác đa kênh. Toàn bộ hệ thống được container hóa bằng **Docker Compose**, bảo vệ bởi **Nginx Reverse Proxy (SSL/HTTPS)**, giám sát toàn diện qua **Prometheus + Grafana**, quản lý log tập trung với **Loki + Promtail**, và áp dụng các giải pháp **Hardening** bảo mật nghiêm ngặt.
 
 ---
